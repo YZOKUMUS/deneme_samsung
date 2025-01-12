@@ -19,11 +19,11 @@
     }
     .grid-container {
       display: grid;
-      grid-template-columns: 322px 322px; /* İki sütun */
-      grid-template-rows: 483px 483px 483px 483px 483px 483px 483px 483px; /* 8 satır, her biri aynı yüksekliğe sahip */
+      grid-template-columns: repeat(2, 2.5cm); /* 2 sütun, her biri 2.5cm genişliğinde */
+      grid-template-rows: repeat(14, 1cm);    /* 14 satır, her biri 1cm yüksekliğinde */
       gap: 0;  /* Hücreler arası boşlukları sıfırladık */
-      width: 1610px;
-      height: 2415px;
+      width: 5cm; /* Toplam genişlik: 2 sütun x 2.5cm */
+      height: 14cm; /* Ekranın yüksekliğine tam uyar */
     }
     .grid-item {
       background-color: #4caf50;
@@ -32,9 +32,8 @@
       justify-content: center;
       align-items: center;
       color: #fff;
-      font-size: 50px;        /* Font büyüklüğü */
+      font-size: 1.2rem;        /* Font büyüklüğü */
       font-weight: bold;
-      aspect-ratio: 4 / 1; /* En/Boy oranı 4:1 */
     }
   </style>
 </head>
@@ -48,6 +47,12 @@
     <div class="grid-item">6</div>
     <div class="grid-item">7</div>
     <div class="grid-item">8</div>
+    <div class="grid-item">9</div>
+    <div class="grid-item">10</div>
+    <div class="grid-item">11</div>
+    <div class="grid-item">12</div>
+    <div class="grid-item">13</div>
+    <div class="grid-item">14</div>
   </div>
 </body>
 </html>
