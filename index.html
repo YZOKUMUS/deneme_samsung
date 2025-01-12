@@ -3,42 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>16 Eşit Dikdörtgen</title>
+  <title>Dikdörtgenlerin Boyutları</title>
   <style>
     body {
-      margin: 0;                                        /* Sayfa kenar boşluklarını sıfırlar */
-      display: flex;                                    /* Flexbox kullanımı */
-      justify-content: center;                          /* Yatayda ortalar */
-      align-items: center;                              /* Dikeyde ortalar */
-      min-height: 100vh;                                /* Ekran yüksekliği kadar uzar */
-      background-color: #f4f4f4;                     /* Sayfa arka plan rengi */
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f4f4f4;
     }
-    .grid-container {                                  /* Grid container */
-      display: grid;                                    /* Grid kullanımı */
-      grid-template-columns: repeat(2, 1fr);            /* 2 sütun */
-      grid-template-rows: repeat(2, 1fr);               /* 2 satır */
-      width: 100%;                                  /* Genişlik 100% */
-      height: 100%;                                 /* Yükseklik 100% */
-      max-width: 1080px;                            /* Maksimum genişlik 1080px */
-      max-height: 2408px;                           /* Maksimum yükseklik 2408px */
-      gap: 5px;                                     /* Kutular arası boşluk */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 200px); /* Her sütun 200px */
+      grid-template-rows: repeat(4, 100px);   /* Her satır 100px */
+      gap: 5px;
     }
     .grid-item {
-      background-color: #4caf50;                    /* Kutu arka plan rengi */
-      border: 1px solid #fff;                       /* Kutu kenarlık rengi */              
-      display: flex;                                    /* Flexbox kullanımı */
-      justify-content: center;                          /* Yatayda ortalar */
-      align-items: center;                              /* Dikeyde ortalar */
-      color: #fff;                                      /* Yazı rengi */
-      font-size: 1.2rem;                                                       
-      font-weight: bold;                                    
+      background-color: #4caf50;
+      border: 1px solid #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div class="grid-container">
-    <!-- 10 adet dikdörtgen -->
-    <div class="grid-item">1</div>                      
+    <div class="grid-item">1</div>
     <div class="grid-item">2</div>
     <div class="grid-item">3</div>
     <div class="grid-item">4</div>
@@ -48,7 +43,12 @@
     <div class="grid-item">8</div>
     <div class="grid-item">9</div>
     <div class="grid-item">10</div>
-    
+    <div class="grid-item">11</div>
+    <div class="grid-item">12</div>
+    <div class="grid-item">13</div>
+    <div class="grid-item">14</div>
+    <div class="grid-item">15</div>
+    <div class="grid-item">16</div>
   </div>
 </body>
 </html>
