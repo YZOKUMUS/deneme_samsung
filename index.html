@@ -6,13 +6,13 @@
   <title>8 Satır Dikdörtgenler</title>
   <style>
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      box-sizing: border-box;       /* Kutu modelini border-box olarak ayarla */
+      margin: 0;                  /* Dış boşlukları sıfırla */
+      padding: 0;                 /* İç boşlukları sıfırla */
     }
     body {
-      display: flex;
-      justify-content: center;
+      display: grid;                     /* Grid container */
+      justify-content: center;        /* İçeriği yatayda merkezle */
       align-items: center;
       min-height: 100vh;
       background-color: #f4f4f4;
@@ -25,15 +25,15 @@
       width: 100%; /* Ekran genişliğini kullan */
       height: 100vh; /* Ekran yüksekliğini kullan */
     }
-    .grid-item {
-      background-color: #4caf50;
-      border: 1px solid #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      font-size: 1.2rem;
-      font-weight: bold;
+    .grid-item {                        /* Hücreler */   
+      background-color: #4caf50;      /* Arka plan rengi */
+      border: 1px solid #fff;         /* Kenarlık */
+      display: flex;                      /* İçeriği merkezle */
+      justify-content: center;                  /* İçeriği yatayda merkezle */
+      align-items: center;              /* İçeriği dikeyde merkezle */  
+      color: #fff;                      /* Yazı rengi */
+      font-size: 1.2rem;                      
+      font-weight: bold;                  
       aspect-ratio: 4 / 1; /* En/Boy oranı 4:1 */
     }
   </style>
