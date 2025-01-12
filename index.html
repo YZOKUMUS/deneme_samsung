@@ -19,20 +19,20 @@
     }
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(2, 322px); /* 2 sütun, her biri 322px genişliğinde */
-      grid-template-rows: repeat(4, 483px);  /* 4 satır, her biri 483px yüksekliğinde */
-      gap: 8px; /* Hücreler arası boşluk */
-      width: 1610px; /* Toplam container genişliği 1610px */
-      height: 2415px; /* Toplam container yüksekliği 2415px */
+      grid-template-columns: 322px 322px; /* İki sütun */
+      grid-template-rows: 483px 483px 483px 483px 483px 483px 483px 483px; /* 8 satır, her biri aynı yüksekliğe sahip */
+      gap: 0;  /* Hücreler arası boşlukları sıfırladık */
+      width: 1610px;
+      height: 2415px;
     }
     .grid-item {
       background-color: #4caf50;
       border: 1px solid #fff;
-      display: flex;
+      display: grid;
       justify-content: center;
       align-items: center;
       color: #fff;
-      font-size: 1.2rem;
+      font-size: 50px;        /* Font büyüklüğü */
       font-weight: bold;
       aspect-ratio: 4 / 1; /* En/Boy oranı 4:1 */
     }
@@ -48,7 +48,6 @@
     <div class="grid-item">6</div>
     <div class="grid-item">7</div>
     <div class="grid-item">8</div>
-    
   </div>
 </body>
 </html>
