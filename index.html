@@ -24,6 +24,12 @@
       overflow-y: auto;
     }
 
+    h1 {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
     .game-container {
       display: flex;
       justify-content: center;
@@ -37,9 +43,9 @@
     .column {
       display: flex;
       flex-direction: column;
-      gap: 10px; /* Adjusted gap for consistency */
+      gap: 10px;
       flex: 1;
-      width: 200px; /* Set a fixed width for the columns */
+      width: 200px;
     }
 
     .grid-item {
@@ -50,7 +56,7 @@
       background-color: #fff;
       text-align: center;
       padding: 10px;
-      height: 50px; /* Same height for all boxes */
+      height: 50px;
       font-size: 16px;
       border-radius: 12px;
       cursor: pointer;
@@ -65,7 +71,7 @@
 
     .grid-item.selected {
       background-color: #8e44ad;
-      color: white;
+      color: rgb(241, 14, 14);
     }
 
     .grid-item.correct {
@@ -79,9 +85,8 @@
       color: white;
     }
 
-    /* Değiştirilebilir Font Ayarları */
     .grid-item.arabic {
-      font-family: 'Amiri', serif;
+      font-family: 'Arabic Typing', serif;
       direction: rtl;
     }
 
@@ -94,7 +99,7 @@
       background-color: #4CAF50;
       color: white;
       padding: 10px 20px;
-      font-size: 1px;
+      font-size: 16px;
       border-radius: 5px;
       cursor: pointer;
       margin-top: 20px;
@@ -214,9 +219,23 @@
     }
 
     function speakArabicWord(word) {
+      if (!('speechSynthesis' in window)) {
+        console.error('Tarayıcınız speechSynthesis özelliğini desteklemiyor.');
+        return;
+      }
+
       const utterance = new SpeechSynthesisUtterance(word);
-      utterance.lang = 'ar'; // Arabic language
-      window.speechSynthesis.speak(utterance);
+      utterance.lang = 'ar';
+      utterance.onstart = () => console.log('Okuma başladı:', word);
+      utterance.onerror = (event) => console.error('Okuma hatası:', event.error);
+      utterance.onend = () => console.log('Okuma tamamlandı:', word);
+
+      try {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.error('Okuma sırasında hata oluştu:', error);
+      }
     }
 
     function checkMatch() {
@@ -271,6 +290,12 @@
       selectedArabic = null;
       selectedTurkish = null;
     }
+
+    document.body.addEventListener('click', () => {
+      const utterance = new SpeechSynthesisUtterance('Hoş geldiniz');
+      utterance.lang = 'tr';
+      window.speechSynthesis.speak(utterance);
+    }, { once: true });
 
     document.getElementById('next-page-btn').onclick = () => {
       currentPage++;
