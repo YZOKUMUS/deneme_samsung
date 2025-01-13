@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Piksel Cinsinden Container Boyutları</title>
+  <title>Büyük Veri ile Arapça-Türkçe Kelime Eşleşmesi</title>
+  <!-- Google Fonts Amiri -->
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -12,56 +14,124 @@
     }
     body {
       display: flex;
-      justify-content: start;
-      align-items: center;
+      justify-content: center;
+      align-items: flex-start;
       min-height: 100vh;
-      background-color: #cae7b2;    /* Arka plan rengi */
+      background-color: #cae7b2; /* Arka plan rengi */
+      font-family: Arial, sans-serif;
+      overflow-y: scroll;
     }
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(2, 6cm); /* 2 sütun, her biri 3cm genişliğinde */
-      grid-template-rows: repeat(16, 2.3cm);    /* 14 satır, her biri 1,5 cm yüksekliğinde */
-      gap: 0;  /* Hücreler arası boşlukları sıfırladık */
-      width: 5cm; /* Toplam genişlik: 2 sütun x 2.5cm */
-      height: 14cm; /* Ekranın yüksekliğine tam uyar */
+      grid-template-columns: 6cm 6cm; /* İki sütun: 6 cm genişlikte */
+      grid-auto-rows: 2.3cm; /* Her bir satır 2.3 cm yüksekliğinde */
+      gap: 0.5cm; /* Hücreler arası boşluk */
+      width: 80%; /* Sayfanın %80 genişliği */
+      margin-top: 2rem;
     }
     .grid-item {
-      background-color: hsl(268, 88%, 36%);
-      border: 1px solid #ce6005;     /* Kenarlık rengi */
-      display: grid;              /* İçeriği grid yapısı içine alır */
-      justify-content: center;    /* İçeriği yatayda ortalar */
-      align-items: center;      /* İçeriği dikeyde ortalar */
-      color: #df1c1c;         /* Yazı rengi */ 
-      font-size: 1.92rem;        /* Font büyüklüğü */
-      font-weight: normal;     /* Font kalınlığı */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ffffff; /* Beyaz arka plan */
+      border: 1px solid #000; /* Siyah kenarlık */
+      font-size: 1.5rem; /* Yazı boyutu */
+      text-align: center;
+    }
+    .grid-item.arabic {
+      direction: rtl; /* Arapça yazılar sağdan sola hizalanır */
+      font-family: 'Amiri', serif; /* Amiri font */
+      font-size: 2rem; /* Daha büyük yazı boyutu */
+      color: #3a3a3a; /* Arapça için yazı rengi */
+    }
+    .grid-item.turkish {
+      direction: ltr; /* Türkçe yazılar soldan sağa hizalanır */
+      font-size: 1.5rem;
+      color: #5a5a5a;
+    }
+    .loading {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <div class="grid-container">
-    <div class="grid-item">1</div>
-    <div class="grid-item">2</div>
-    <div class="grid-item">3</div>
-    <div class="grid-item">4</div>
-    <div class="grid-item">5</div>
-    <div class="grid-item">6</div>
-    <div class="grid-item">7</div>
-    <div class="grid-item">8</div>
-    <div class="grid-item">9</div>
-    <div class="grid-item">10</div>
-    <div class="grid-item">11</div>
-    <div class="grid-item">12</div>
-    <div class="grid-item">13</div>
-    <div class="grid-item">14</div>
-    <div class="grid-item">15</div>
-    <div class="grid-item">16</div>
-    
-    
-    <div></div>
-
-
-
-
+  <div class="grid-container" id="grid-container">
+    <!-- Dinamik olarak doldurulacak -->
   </div>
+  <div class="loading" id="loading">Veriler yükleniyor...</div>
+
+  <script>
+    // Sayfalama parametreleri
+    const pageSize = 50; // Her sayfada 50 çift kelime
+    let currentPage = 0;
+    let isLoading = false;
+
+    // JSON'dan verileri yükleme
+    async function fetchData() {
+      try {
+        const response = await fetch('data.json');
+        return await response.json();
+      } catch (error) {
+        console.error('JSON yüklenirken bir hata oluştu:', error);
+        return [];
+      }
+    }
+
+    // Verileri DOM'a ekleme
+    function addDataToGrid(data) {
+      const container = document.getElementById('grid-container');
+      const startIndex = currentPage * pageSize;
+      const endIndex = startIndex + pageSize;
+      const currentData = data.slice(startIndex, endIndex);
+
+      currentData.forEach(item => {
+        // Arapça kelime
+        const arabicDiv = document.createElement('div');
+        arabicDiv.className = 'grid-item arabic';
+        arabicDiv.textContent = item.arabic_word;
+        container.appendChild(arabicDiv);
+
+        // Türkçe kelime
+        const turkishDiv = document.createElement('div');
+        turkishDiv.className = 'grid-item turkish';
+        turkishDiv.textContent = item.turkish_meaning;
+        container.appendChild(turkishDiv);
+      });
+
+      if (endIndex >= data.length) {
+        document.getElementById('loading').textContent = 'Tüm veriler yüklendi.';
+      }
+    }
+
+    // Sayfayı kaydırınca daha fazla veri yükleme
+    async function loadMoreData() {
+      if (isLoading) return;
+      isLoading = true;
+
+      const data = await fetchData();
+      addDataToGrid(data);
+
+      currentPage++;
+      isLoading = false;
+    }
+
+    // Kaydırma olayını dinleme
+    window.addEventListener('scroll', async () => {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+      if (scrollTop + clientHeight >= scrollHeight - 5 && !isLoading) {
+        await loadMoreData();
+      }
+    });
+
+    // İlk yükleme
+    (async () => {
+      const data = await fetchData();
+      addDataToGrid(data);
+      currentPage++;
+    })();
+  </script>
 </body>
 </html>
