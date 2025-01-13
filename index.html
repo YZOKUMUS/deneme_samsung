@@ -109,6 +109,22 @@
     .next-button:hover {
       background-color: #45a049;
     }
+
+    /* Mobil uyumlu düzen */
+    @media (max-width: 768px) {
+      .game-container {
+        flex-direction: column; /* Mobilde sütunları alt alta yerleştir */
+        align-items: center;
+      }
+
+      .column {
+        width: 100%; /* Mobilde her sütun tam genişlikte olacak */
+      }
+
+      .grid-item {
+        font-size: 14px; /* Mobilde font boyutunu küçültme */
+      }
+    }
   </style>
 </head>
 <body>
