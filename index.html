@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Büyük Veri ile Arapça-Türkçe Kelime Eşleşmesi</title>
+  <title>Arapça-Türkçe Kelimeler</title>
   <!-- Google Fonts Amiri -->
   <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
   <style>
@@ -13,57 +13,57 @@
       padding: 0;
     }
     body {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      background-color: #cae7b2; /* Arka plan rengi */
       font-family: Arial, sans-serif;
-      overflow-y: scroll;
+      background-color: #cae7b2; /* Arka plan rengi */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-y: auto;
     }
     .grid-container {
       display: grid;
-      grid-template-columns: 6cm 6cm; /* İki sütun: 6 cm genişlikte */
-      grid-auto-rows: 2.3cm; /* Her bir satır 2.3 cm yüksekliğinde */
+      grid-template-columns: 6cm 6cm; /* İki sütun */
+      grid-auto-rows: 2.3cm; /* Satır yüksekliği */
       gap: 0.5cm; /* Hücreler arası boşluk */
-      width: 80%; /* Sayfanın %80 genişliği */
+      width: 80%; /* Sayfanın genişliği */
       margin-top: 2rem;
     }
     .grid-item {
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #ffffff; /* Beyaz arka plan */
       border: 1px solid #000; /* Siyah kenarlık */
+      background-color: #fff; /* Beyaz arka plan */
       font-size: 1.5rem; /* Yazı boyutu */
       text-align: center;
+      padding: 5px;
+      overflow: hidden;
     }
     .grid-item.arabic {
-      direction: rtl; /* Arapça yazılar sağdan sola hizalanır */
-      font-family: 'Amiri', serif; /* Amiri font */
-      font-size: 2rem; /* Daha büyük yazı boyutu */
-      color: #3a3a3a; /* Arapça için yazı rengi */
+      font-family: 'Amiri', serif; /* Arapça font */
+      direction: rtl; /* Sağdan sola */
+      color: #3a3a3a; /* Arapça yazı rengi */
+      font-size: 2rem; /* Daha büyük yazı */
     }
     .grid-item.turkish {
-      direction: ltr; /* Türkçe yazılar soldan sağa hizalanır */
-      font-size: 1.5rem;
-      color: #5a5a5a;
-    }
-    .loading {
-      text-align: center;
-      font-size: 1.5rem;
-      margin-top: 1rem;
+      direction: ltr; /* Soldan sağa */
+      color: #5a5a5a; /* Türkçe yazı rengi */
+      font-size: calc(0.1rem + 1.5vw); /* Dinamik yazı boyutu */
+      word-wrap: break-word; /* Kelimelerin kırılmasına izin ver */
+      hyphens: auto; /* Kelime kırımına izin ver */
+      padding: 0.5rem;
     }
   </style>
 </head>
 <body>
   <div class="grid-container" id="grid-container">
-    <!-- Dinamik olarak doldurulacak -->
+    <!-- Veriler buraya eklenecek -->
   </div>
-  <div class="loading" id="loading">Veriler yükleniyor...</div>
 
   <script>
-    // Sayfalama parametreleri
     const pageSize = 50; // Her sayfada 50 çift kelime
     let currentPage = 0;
     let isLoading = false;
@@ -72,6 +72,7 @@
     async function fetchData() {
       try {
         const response = await fetch('data.json');
+        if (!response.ok) throw new Error('JSON yüklenemedi');
         return await response.json();
       } catch (error) {
         console.error('JSON yüklenirken bir hata oluştu:', error);
@@ -86,26 +87,24 @@
       const endIndex = startIndex + pageSize;
       const currentData = data.slice(startIndex, endIndex);
 
+      if (currentData.length === 0) return;
+
       currentData.forEach(item => {
         // Arapça kelime
         const arabicDiv = document.createElement('div');
         arabicDiv.className = 'grid-item arabic';
-        arabicDiv.textContent = item.arabic_word;
+        arabicDiv.textContent = item.arabic_word || '---';
         container.appendChild(arabicDiv);
 
         // Türkçe kelime
         const turkishDiv = document.createElement('div');
         turkishDiv.className = 'grid-item turkish';
-        turkishDiv.textContent = item.turkish_meaning;
+        turkishDiv.textContent = item.turkish_meaning || '---';
         container.appendChild(turkishDiv);
       });
-
-      if (endIndex >= data.length) {
-        document.getElementById('loading').textContent = 'Tüm veriler yüklendi.';
-      }
     }
 
-    // Sayfayı kaydırınca daha fazla veri yükleme
+    // Kaydırma ile daha fazla veri yükleme
     async function loadMoreData() {
       if (isLoading) return;
       isLoading = true;
@@ -117,6 +116,15 @@
       isLoading = false;
     }
 
+    // İlk veri yükleme
+    (async () => {
+      const data = await fetchData();
+      if (data.length > 0) {
+        addDataToGrid(data);
+        currentPage++;
+      }
+    })();
+
     // Kaydırma olayını dinleme
     window.addEventListener('scroll', async () => {
       const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
@@ -125,13 +133,6 @@
         await loadMoreData();
       }
     });
-
-    // İlk yükleme
-    (async () => {
-      const data = await fetchData();
-      addDataToGrid(data);
-      currentPage++;
-    })();
   </script>
 </body>
 </html>
