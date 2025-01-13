@@ -15,25 +15,25 @@
       justify-content: start;
       align-items: center;
       min-height: 100vh;
-      background-color: #f4f4f4;
+      background-color: #cae7b2;    /* Arka plan rengi */
     }
     .grid-container {
       display: grid;
       grid-template-columns: repeat(2, 6cm); /* 2 sütun, her biri 3cm genişliğinde */
-      grid-template-rows: repeat(20, 0,1cm);    /* 14 satır, her biri 1,5 cm yüksekliğinde */
+      grid-template-rows: repeat(20, 2.3cm);    /* 14 satır, her biri 1,5 cm yüksekliğinde */
       gap: 0;  /* Hücreler arası boşlukları sıfırladık */
       width: 5cm; /* Toplam genişlik: 2 sütun x 2.5cm */
       height: 14cm; /* Ekranın yüksekliğine tam uyar */
     }
     .grid-item {
-      background-color: #d664228e;
-      border: 1px solid #fff;
-      display: grid;
-      justify-content: center;
-      align-items: center;
-      color: #fff;
-      font-size: 1.2rem;        /* Font büyüklüğü */
-      font-weight: bold;
+      background-color: hsl(268, 88%, 36%);
+      border: 1px solid #ce6005;     /* Kenarlık rengi */
+      display: grid;              /* İçeriği grid yapısı içine alır */
+      justify-content: center;    /* İçeriği yatayda ortalar */
+      align-items: center;      /* İçeriği dikeyde ortalar */
+      color: #df1c1c;         /* Yazı rengi */ 
+      font-size: 1.92rem;        /* Font büyüklüğü */
+      font-weight: normal;     /* Font kalınlığı */
     }
   </style>
 </head>
