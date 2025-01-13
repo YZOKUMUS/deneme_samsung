@@ -41,6 +41,7 @@
       text-align: center;
       padding: 5px;
       overflow: hidden;
+      border-radius: 10px; /* Köşeleri yuvarlatmak için */
     }
     .grid-item.arabic {
       font-family: 'Amiri', serif; /* Arapça font */
@@ -51,7 +52,7 @@
     .grid-item.turkish {
       direction: ltr; /* Soldan sağa */
       color: #5a5a5a; /* Türkçe yazı rengi */
-      font-size: calc(0.1rem + 1.5vw); /* Dinamik yazı boyutu */
+      font-size: calc(1.0rem + 1vw); /* Dinamik yazı boyutu */
       word-wrap: break-word; /* Kelimelerin kırılmasına izin ver */
       hyphens: auto; /* Kelime kırımına izin ver */
       padding: 0.5rem;
@@ -64,7 +65,7 @@
   </div>
 
   <script>
-    const pageSize = 50; // Her sayfada 50 çift kelime
+    const pageSize = 9; // Her sayfada 50 çift kelime
     let currentPage = 0;
     let isLoading = false;
 
