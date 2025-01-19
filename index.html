@@ -20,34 +20,28 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 10px;
-      width: 100%;
-      overflow: hidden;
+      padding: 20px;
     }
 
     h1 {
       font-size: 24px;
       margin-bottom: 20px;
       text-align: center;
-      width: 100%;
-      word-wrap: break-word;
     }
 
     .game-container {
       display: flex;
-      justify-content: center;
       gap: 20px;
-      width: 100%;
-      flex-wrap: nowrap; /* Konteynerlerin asla sarmamasını sağlıyoruz */
-      overflow: hidden;
+      flex-wrap: nowrap;
+      max-width: 100%;
+      justify-content: center;
     }
 
     .column {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      width: 200px; /* Sabit genişlik, her zaman aynı genişlikte olacak */
-      overflow-y: auto; /* Eğer içerik sığmazsa kaydırma çubuğu ekler */
+      width: 200px;
     }
 
     .grid-item {
@@ -57,9 +51,9 @@
       border: 2px solid #000;
       background-color: #fff;
       text-align: center;
-      padding: 8px;
+      padding: 10px;
       height: 50px;
-      font-size: 14px;
+      font-size: 16px;
       border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
@@ -91,13 +85,13 @@
       font-family: 'Amiri', serif;
       color: #08c4a4;
       direction: rtl;
-      font-size: 20px;
+      font-size: 24px;
     }
 
     .grid-item.turkish {
       font-family: 'Roboto', sans-serif;
       direction: ltr;
-      font-size: 14px;
+      font-size: 16px;
     }
 
     .next-button {
@@ -119,30 +113,16 @@
     /* Mobil uyumlu düzen */
     @media (max-width: 768px) {
       .game-container {
-        flex-direction: row; /* Mobilde de her iki kolonu yan yana tut */
-        justify-content: space-evenly; /* Her iki kolonu eşit şekilde yay */
+        flex-flow: column wrap; /* Mobilde sütunları alt alta yerleştir */
+        align-items: center;
       }
 
       .column {
-        width: 150px; /* Mobilde daha dar sütunlar */
+        width: 100%; /* Mobilde her sütun tam genişlikte olacak */
       }
 
       .grid-item {
-        font-size: 12px; /* Mobilde font boyutunu küçültme */
-      }
-
-      h1 {
-        font-size: 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .grid-item {
-        font-size: 10px; /* Daha küçük ekranlar için font boyutu daha da küçülür */
-      }
-
-      .column {
-        width: 100px; /* Küçük ekranlar için çok dar sütunlar */
+        font-size: 14px; /* Mobilde font boyutunu küçültme */
       }
     }
   </style>
@@ -213,6 +193,7 @@
     function handleSelection(type, word) {
       if (type === 'arabic') {
         selectedArabic = toggleSelection(word, '.grid-item.arabic', selectedArabic);
+        // Sesli okuma fonksiyonunu tetikle
         speakWord(word, 'ar-SA');
       } else {
         selectedTurkish = toggleSelection(word, '.grid-item.turkish', selectedTurkish);
@@ -230,12 +211,21 @@
     }
 
     function speakWord(word, lang) {
-      if (!('speechSynthesis' in window)) return;
+      if (!('speechSynthesis' in window)) {
+        console.error("Speech synthesis API is not supported in this browser.");
+        return;
+      }
 
       const utterance = new SpeechSynthesisUtterance(word);
       utterance.lang = lang;
-      speechSynthesis.cancel();
-      speechSynthesis.speak(utterance);
+
+      // Sesli okuma başlatılmadan önce bir kullanıcı etkileşimi beklemek gerekebilir
+      if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+      } else {
+        console.warn("Unable to initiate speech synthesis immediately.");
+      }
     }
 
     function checkMatch() {
