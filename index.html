@@ -64,11 +64,6 @@
       transform: scale(1.05);
     }
 
-    .grid-item.selected {
-      background-color: #eeaa17cb;
-      color: white;
-    }
-
     .grid-item.correct {
       background-color: #27ae60;
       color: white;
@@ -120,7 +115,7 @@
   <button class="next-button" id="next-page-btn">Bir Sonraki Sayfaya Geç</button>
 
   <script>
-    const wordsPerPage = 8; // Bir sayfada gösterilecek kelime sayısı
+    const wordsPerPage = 8;
     let selectedArabic = null;
     let selectedTurkish = null;
     let correctPairs = 0;
@@ -128,14 +123,8 @@
     let allData = [];
 
     async function fetchData() {
-      try {
-        const response = await fetch('data.json');
-        if (!response.ok) throw new Error('JSON yüklenemedi');
-        return await response.json();
-      } catch (error) {
-        console.error('JSON yüklenirken bir hata oluştu:', error);
-        return [];
-      }
+      const response = await fetch('data.json');
+      return response.ok ? await response.json() : [];
     }
 
     function shuffleArray(array) {
@@ -168,40 +157,40 @@
       });
 
       turkishWords.forEach(word => {
-        turkishColumn.appendChild(createGridItem(word, 'turkish', () => handleSelection('turkish', word)));
+        turkishColumn.appendChild(createGridItem(word, 'turkish', () => handleTurkishClick(word)));
       });
     }
 
     function handleArabicClick(word) {
+      if (selectedArabic) return; // Eğer seçilmişse tekrar tıklanmasın
       speakWord(word);
-      handleSelection('arabic', word);
-    }
-
-    function handleSelection(type, word) {
-      if (type === 'arabic') {
-        selectedArabic = toggleSelection(word, '.grid-item.arabic', selectedArabic);
-      } else {
-        selectedTurkish = toggleSelection(word, '.grid-item.turkish', selectedTurkish);
-      }
+      selectedArabic = word;
+      markSelection(word, 'arabic', 'selected');
       checkMatch();
     }
 
-    function toggleSelection(word, selector, currentSelection) {
-      if (currentSelection === word) return null;
+    function handleTurkishClick(word) {
+      if (selectedTurkish) return;
+      selectedTurkish = word;
+      markSelection(word, 'turkish', 'selected');
+      checkMatch();
+    }
 
-      document.querySelectorAll(selector).forEach(item => {
-        item.classList.toggle('selected', item.textContent === word);
+    function markSelection(word, type, status) {
+      document.querySelectorAll(`.grid-item.${type}`).forEach(item => {
+        if (item.textContent === word) item.classList.add(status);
       });
-      return word;
     }
 
     function checkMatch() {
       if (selectedArabic && selectedTurkish) {
-        const pair = allData.find(item => item.arabic_word === selectedArabic && item.turkish_meaning === selectedTurkish);
+        const isMatch = allData.some(
+          pair => pair.arabic_word === selectedArabic && pair.turkish_meaning === selectedTurkish
+        );
 
-        if (pair) {
-          correctPairs++;
+        if (isMatch) {
           markAsCorrect(selectedArabic, selectedTurkish);
+          correctPairs++;
         } else {
           markAsIncorrect(selectedArabic, selectedTurkish);
         }
@@ -216,19 +205,27 @@
     }
 
     function markAsCorrect(arabic, turkish) {
-      markSelection(arabic, 'arabic', 'correct');
-      markSelection(turkish, 'turkish', 'correct');
+      updateGridItem(arabic, 'arabic', 'correct');
+      updateGridItem(turkish, 'turkish', 'correct');
     }
 
     function markAsIncorrect(arabic, turkish) {
-      markSelection(arabic, 'arabic', 'incorrect');
-      markSelection(turkish, 'turkish', 'incorrect');
+      updateGridItem(arabic, 'arabic', 'incorrect');
+      updateGridItem(turkish, 'turkish', 'incorrect');
       setTimeout(resetSelections, 1000);
     }
 
-    function markSelection(word, type, status) {
+    function updateGridItem(word, type, status) {
       document.querySelectorAll(`.grid-item.${type}`).forEach(item => {
-        if (item.textContent === word) item.classList.add(status);
+        if (item.textContent === word) {
+          item.classList.remove('selected');
+          item.classList.add(status);
+          if (status === 'correct') {
+            item.style.pointerEvents = 'none'; // Tıklanamaz yap
+          } else {
+            item.style.pointerEvents = 'auto'; // Yanlış ise tekrar tıklanabilir
+          }
+        }
       });
     }
 
@@ -240,7 +237,7 @@
 
     function speakWord(word) {
       const utterance = new SpeechSynthesisUtterance(word);
-      utterance.lang = 'ar'; // Arapça dilinde okutma
+      utterance.lang = 'ar';
       speechSynthesis.speak(utterance);
     }
 
@@ -257,7 +254,7 @@
 
     async function initGame() {
       allData = shuffleArray(await fetchData());
-      if (allData.length) renderPageData();
+      renderPageData();
     }
 
     initGame();
