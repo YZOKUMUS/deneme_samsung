@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <style>
+    /* Aynı CSS kodu burada kalıyor */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -22,7 +23,7 @@
       justify-content: center;
       min-height: 100vh;
       padding: 10px;
-      overflow: hidden; /* Kaydırmayı engeller */
+      overflow: hidden;
     }
 
     h1 {
@@ -36,7 +37,7 @@
       gap: 15px;
       flex-wrap: wrap;
       width: 100%;
-      max-width: 500px; /* Uygun bir maksimum genişlik */
+      max-width: 500px;
       justify-content: space-between;
     }
 
@@ -44,8 +45,8 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      flex: 1; /* Sütunlar eşit genişlik alır */
-      max-width: 45%; /* Yan yana durması için genişlik sınırı */
+      flex: 1;
+      max-width: 45%;
     }
 
     .grid-item {
@@ -87,7 +88,7 @@
 
     .grid-item.arabic {
       font-family: 'Amiri', serif;
-      color: #333333; /* Kömür karası */
+      color: #333333;
       direction: rtl;
       font-size: 18px;
     }
@@ -120,8 +121,8 @@
       }
 
       .grid-item {
-        font-size: 12px; /* Daha küçük font boyutu */
-        height: 40px; /* Daha az yükseklik */
+        font-size: 12px;
+        height: 40px;
       }
 
       .game-container {
@@ -175,48 +176,49 @@
       const start = currentPage * wordsPerPage;
       const pageData = allData.slice(start, start + wordsPerPage);
 
-      const arabicWords = shuffleArray(pageData.map(item => item.arabic_word));
-      const turkishWords = shuffleArray(pageData.map(item => item.turkish_meaning));
-
       const arabicColumn = document.getElementById('arabic-column');
       const turkishColumn = document.getElementById('turkish-column');
 
       arabicColumn.innerHTML = '';
       turkishColumn.innerHTML = '';
 
-      arabicWords.forEach(word => {
-        arabicColumn.appendChild(createGridItem(word, 'arabic', () => handleSelection('arabic', word)));
-      });
+      shuffleArray(pageData).forEach(item => {
+        const arabicItem = createGridItem(item.arabic_word, 'arabic', () => handleSelection('arabic', item));
+        const turkishItem = createGridItem(item.turkish_meaning, 'turkish', () => handleSelection('turkish', item));
 
-      turkishWords.forEach(word => {
-        turkishColumn.appendChild(createGridItem(word, 'turkish', () => handleSelection('turkish', word)));
+        arabicColumn.appendChild(arabicItem);
+        turkishColumn.appendChild(turkishItem);
       });
     }
 
-    function handleSelection(type, word) {
+    function handleSelection(type, item) {
       if (type === 'arabic') {
-        selectedArabic = toggleSelection(word, '.grid-item.arabic', selectedArabic);
+        selectedArabic = toggleSelection(item, '.grid-item.arabic', selectedArabic);
+        speakArabic(item.arabic_word); // Arapça kelimeyi okut
       } else {
-        selectedTurkish = toggleSelection(word, '.grid-item.turkish', selectedTurkish);
+        selectedTurkish = toggleSelection(item, '.grid-item.turkish', selectedTurkish);
       }
       checkMatch();
     }
 
-    function toggleSelection(word, selector, currentSelection) {
-      if (currentSelection === word) return null;
+    function speakArabic(word) {
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = 'ar-SA'; // Arapça dili
+      speechSynthesis.speak(utterance);
+    }
 
-      document.querySelectorAll(selector).forEach(item => {
-        item.classList.toggle('selected', item.textContent === word);
+    function toggleSelection(item, selector, currentSelection) {
+      if (currentSelection === item) return null;
+
+      document.querySelectorAll(selector).forEach(gridItem => {
+        gridItem.classList.toggle('selected', gridItem.textContent === item.arabic_word || gridItem.textContent === item.turkish_meaning);
       });
-      return word;
+      return item;
     }
 
     function checkMatch() {
       if (selectedArabic && selectedTurkish) {
-        const pair = allData.find(item => item.arabic_word === selectedArabic && item.turkish_meaning === selectedTurkish);
-
-        if (pair) {
-          correctPairs++;
+        if (selectedArabic.turkish_meaning === selectedTurkish.turkish_meaning) {
           markAsCorrect(selectedArabic, selectedTurkish);
         } else {
           markAsIncorrect(selectedArabic, selectedTurkish);
@@ -232,23 +234,15 @@
     }
 
     function markAsCorrect(arabic, turkish) {
-      markSelection(arabic, 'arabic', 'correct');
-      markSelection(turkish, 'turkish', 'correct');
-      disableArabic(arabic); // Arapça kelimeyi tıklanamaz yap
+      markSelection(arabic.arabic_word, 'arabic', 'correct');
+      markSelection(turkish.turkish_meaning, 'turkish', 'correct');
+      correctPairs++;
     }
 
     function markAsIncorrect(arabic, turkish) {
-      markSelection(arabic, 'arabic', 'incorrect');
-      markSelection(turkish, 'turkish', 'incorrect');
+      markSelection(arabic.arabic_word, 'arabic', 'incorrect');
+      markSelection(turkish.turkish_meaning, 'turkish', 'incorrect');
       setTimeout(resetSelections, 1000);
-    }
-
-    function disableArabic(word) {
-      document.querySelectorAll('.grid-item.arabic').forEach(item => {
-        if (item.textContent === word) {
-          item.style.pointerEvents = 'none';
-        }
-      });
     }
 
     function markSelection(word, type, status) {
