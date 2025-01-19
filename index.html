@@ -30,19 +30,21 @@
     }
 
     .game-container {
-      display: flex;
-      gap: 20px;
-      flex-wrap: nowrap;
-      max-width: 100%;
-      justify-content: center;
-    }
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  max-width: 100%;
+  justify-content: center;
+}
 
-    .column {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 200px;
-    }
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: px;
+  width: 200px; /* Burayı değiştirebilirsiniz */
+}
+
 
     .grid-item {
       display: flex;
@@ -82,11 +84,17 @@
     }
 
     .grid-item.arabic {
-      font-family: 'Amiri', serif;
-      color: #08c4a4;
-      direction: rtl;
-      font-size: 24px;
-    }
+  font-family: 'Amiri', serif;
+  color: #333333; /* Kömür karası rengi */
+  direction: rtl;
+  font-size: 24px;
+  text-align: center;
+  padding: 10px;
+  height: 50px;
+  border-radius: 12px;
+}
+
+
 
     .grid-item.turkish {
       font-family: 'Roboto', sans-serif;
@@ -144,6 +152,7 @@
     let correctPairs = 0;
     let currentPage = 0;
     let allData = [];
+    let isProcessing = false; // İşlem yapıldığını belirten bayrak
 
     async function fetchData() {
       try {
@@ -191,14 +200,19 @@
     }
 
     function handleSelection(type, word) {
+      if (isProcessing) return; // Eğer işlem yapılırsa, başka bir seçim yapılamaz
+
       if (type === 'arabic') {
         selectedArabic = toggleSelection(word, '.grid-item.arabic', selectedArabic);
-        // Sesli okuma fonksiyonunu tetikle
         speakWord(word, 'ar-SA');
       } else {
         selectedTurkish = toggleSelection(word, '.grid-item.turkish', selectedTurkish);
       }
-      checkMatch();
+
+      if (selectedArabic && selectedTurkish) {
+        isProcessing = true; // İşlem başladı
+        checkMatch();
+      }
     }
 
     function toggleSelection(word, selector, currentSelection) {
@@ -211,21 +225,12 @@
     }
 
     function speakWord(word, lang) {
-      if (!('speechSynthesis' in window)) {
-        console.error("Speech synthesis API is not supported in this browser.");
-        return;
-      }
+      if (!('speechSynthesis' in window)) return;
 
       const utterance = new SpeechSynthesisUtterance(word);
       utterance.lang = lang;
-
-      // Sesli okuma başlatılmadan önce bir kullanıcı etkileşimi beklemek gerekebilir
-      if (document.readyState === 'interactive' || document.readyState === 'complete') {
-        speechSynthesis.cancel();
-        speechSynthesis.speak(utterance);
-      } else {
-        console.warn("Unable to initiate speech synthesis immediately.");
-      }
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
     }
 
     function checkMatch() {
@@ -235,6 +240,8 @@
         if (pair) {
           correctPairs++;
           markAsCorrect(selectedArabic, selectedTurkish);
+          disableClickable(selectedArabic, 'arabic');
+          disableClickable(selectedTurkish, 'turkish');
         } else {
           markAsIncorrect(selectedArabic, selectedTurkish);
         }
@@ -245,7 +252,19 @@
         if (correctPairs === wordsPerPage) {
           document.getElementById('next-page-btn').style.display = 'block';
         }
+
+        setTimeout(() => {
+          isProcessing = false; // İşlem bitti, yeni tıklama yapılabilir
+        }, 1000); // Eşleşme kontrolü sonrası 1 saniye bekleme
       }
+    }
+
+    function disableClickable(word, type) {
+      document.querySelectorAll(`.grid-item.${type}`).forEach(item => {
+        if (item.textContent === word) {
+          item.style.pointerEvents = 'none'; // Tıklanamaz yap
+        }
+      });
     }
 
     function markAsCorrect(arabic, turkish) {
