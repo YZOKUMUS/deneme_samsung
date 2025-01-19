@@ -237,7 +237,7 @@
 
     function speakWord(word) {
       const utterance = new SpeechSynthesisUtterance(word);
-      utterance.lang = 'ar';
+      utterance.lang = 'ar-SA'; // Arapça için dil kodu
       speechSynthesis.speak(utterance);
     }
 
