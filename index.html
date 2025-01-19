@@ -2,51 +2,45 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arapça - Türkçe Eşleştirme Oyunu</title>
   <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <style>
-    /* Aynı CSS kodu burada kalıyor */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html, body {
+    body {
       font-family: Arial, sans-serif;
       background-color: #cae7b2;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       min-height: 100vh;
       padding: 10px;
-      overflow: hidden;
     }
 
     h1 {
-      font-size: 22px;
-      margin-bottom: 15px;
+      font-size: 24px;
+      margin-bottom: 20px;
       text-align: center;
     }
 
     .game-container {
       display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
       width: 100%;
-      max-width: 500px;
-      justify-content: space-between;
     }
 
     .column {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      flex: 1;
-      max-width: 45%;
+      width: 40%;
+      max-width: 180px;
     }
 
     .grid-item {
@@ -58,7 +52,7 @@
       text-align: center;
       padding: 10px;
       height: 50px;
-      font-size: 14px;
+      font-size: 16px;
       border-radius: 12px;
       cursor: pointer;
       box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
@@ -88,13 +82,12 @@
 
     .grid-item.arabic {
       font-family: 'Amiri', serif;
-      color: #333333;
+      color: #333; /* Kömür karası */
       direction: rtl;
-      font-size: 18px;
+      font-size: 24px;
     }
 
     .grid-item.turkish {
-      font-family: 'Roboto', sans-serif;
       direction: ltr;
       font-size: 16px;
     }
@@ -114,21 +107,6 @@
     .next-button:hover {
       background-color: #45a049;
     }
-
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 18px;
-      }
-
-      .grid-item {
-        font-size: 12px;
-        height: 40px;
-      }
-
-      .game-container {
-        gap: 10px;
-      }
-    }
   </style>
 </head>
 <body>
@@ -142,7 +120,7 @@
   <button class="next-button" id="next-page-btn">Bir Sonraki Sayfaya Geç</button>
 
   <script>
-    const wordsPerPage = 9;
+    const wordsPerPage = 8; // Bir sayfada gösterilecek kelime sayısı
     let selectedArabic = null;
     let selectedTurkish = null;
     let correctPairs = 0;
@@ -176,49 +154,53 @@
       const start = currentPage * wordsPerPage;
       const pageData = allData.slice(start, start + wordsPerPage);
 
+      const arabicWords = shuffleArray(pageData.map(item => item.arabic_word));
+      const turkishWords = shuffleArray(pageData.map(item => item.turkish_meaning));
+
       const arabicColumn = document.getElementById('arabic-column');
       const turkishColumn = document.getElementById('turkish-column');
 
       arabicColumn.innerHTML = '';
       turkishColumn.innerHTML = '';
 
-      shuffleArray(pageData).forEach(item => {
-        const arabicItem = createGridItem(item.arabic_word, 'arabic', () => handleSelection('arabic', item));
-        const turkishItem = createGridItem(item.turkish_meaning, 'turkish', () => handleSelection('turkish', item));
+      arabicWords.forEach(word => {
+        arabicColumn.appendChild(createGridItem(word, 'arabic', () => handleArabicClick(word)));
+      });
 
-        arabicColumn.appendChild(arabicItem);
-        turkishColumn.appendChild(turkishItem);
+      turkishWords.forEach(word => {
+        turkishColumn.appendChild(createGridItem(word, 'turkish', () => handleSelection('turkish', word)));
       });
     }
 
-    function handleSelection(type, item) {
+    function handleArabicClick(word) {
+      speakWord(word);
+      handleSelection('arabic', word);
+    }
+
+    function handleSelection(type, word) {
       if (type === 'arabic') {
-        selectedArabic = toggleSelection(item, '.grid-item.arabic', selectedArabic);
-        speakArabic(item.arabic_word); // Arapça kelimeyi okut
+        selectedArabic = toggleSelection(word, '.grid-item.arabic', selectedArabic);
       } else {
-        selectedTurkish = toggleSelection(item, '.grid-item.turkish', selectedTurkish);
+        selectedTurkish = toggleSelection(word, '.grid-item.turkish', selectedTurkish);
       }
       checkMatch();
     }
 
-    function speakArabic(word) {
-      const utterance = new SpeechSynthesisUtterance(word);
-      utterance.lang = 'ar-SA'; // Arapça dili
-      speechSynthesis.speak(utterance);
-    }
+    function toggleSelection(word, selector, currentSelection) {
+      if (currentSelection === word) return null;
 
-    function toggleSelection(item, selector, currentSelection) {
-      if (currentSelection === item) return null;
-
-      document.querySelectorAll(selector).forEach(gridItem => {
-        gridItem.classList.toggle('selected', gridItem.textContent === item.arabic_word || gridItem.textContent === item.turkish_meaning);
+      document.querySelectorAll(selector).forEach(item => {
+        item.classList.toggle('selected', item.textContent === word);
       });
-      return item;
+      return word;
     }
 
     function checkMatch() {
       if (selectedArabic && selectedTurkish) {
-        if (selectedArabic.turkish_meaning === selectedTurkish.turkish_meaning) {
+        const pair = allData.find(item => item.arabic_word === selectedArabic && item.turkish_meaning === selectedTurkish);
+
+        if (pair) {
+          correctPairs++;
           markAsCorrect(selectedArabic, selectedTurkish);
         } else {
           markAsIncorrect(selectedArabic, selectedTurkish);
@@ -234,14 +216,13 @@
     }
 
     function markAsCorrect(arabic, turkish) {
-      markSelection(arabic.arabic_word, 'arabic', 'correct');
-      markSelection(turkish.turkish_meaning, 'turkish', 'correct');
-      correctPairs++;
+      markSelection(arabic, 'arabic', 'correct');
+      markSelection(turkish, 'turkish', 'correct');
     }
 
     function markAsIncorrect(arabic, turkish) {
-      markSelection(arabic.arabic_word, 'arabic', 'incorrect');
-      markSelection(turkish.turkish_meaning, 'turkish', 'incorrect');
+      markSelection(arabic, 'arabic', 'incorrect');
+      markSelection(turkish, 'turkish', 'incorrect');
       setTimeout(resetSelections, 1000);
     }
 
@@ -257,6 +238,12 @@
       });
     }
 
+    function speakWord(word) {
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = 'ar'; // Arapça dilinde okutma
+      speechSynthesis.speak(utterance);
+    }
+
     document.getElementById('next-page-btn').onclick = () => {
       currentPage++;
       correctPairs = 0;
@@ -269,7 +256,7 @@
     };
 
     async function initGame() {
-      allData = await fetchData();
+      allData = shuffleArray(await fetchData());
       if (allData.length) renderPageData();
     }
 
