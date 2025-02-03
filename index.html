@@ -77,7 +77,7 @@
 
     .grid-item.arabic {
       font-family: 'Amiri', serif;
-      color: #333; /* Kömür karası */
+      color: #333;
       direction: rtl;
       font-size: 24px;
     }
@@ -162,7 +162,7 @@
     }
 
     function handleArabicClick(word) {
-      if (selectedArabic) return; // Eğer seçilmişse tekrar tıklanmasın
+      if (selectedArabic) return;
       speakWord(word);
       selectedArabic = word;
       markSelection(word, 'arabic', 'selected');
@@ -221,9 +221,7 @@
           item.classList.remove('selected');
           item.classList.add(status);
           if (status === 'correct') {
-            item.style.pointerEvents = 'none'; // Tıklanamaz yap
-          } else {
-            item.style.pointerEvents = 'auto'; // Yanlış ise tekrar tıklanabilir
+            item.style.pointerEvents = 'none';
           }
         }
       });
@@ -236,21 +234,14 @@
     }
 
     function speakWord(word) {
-      const utterance = new SpeechSynthesisUtterance(word);
-      utterance.lang = 'ar-SA'; // Arapça için dil kodu
-      speechSynthesis.speak(utterance);
-    }
-
-    document.getElementById('next-page-btn').onclick = () => {
-      currentPage++;
-      correctPairs = 0;
-      if (currentPage * wordsPerPage < allData.length) {
-        renderPageData();
-        document.getElementById('next-page-btn').style.display = 'none';
-      } else {
-        alert('Tüm eşleşmeleri tamamladınız!');
+      const wordData = allData.find(item => item.arabic_word === word);
+      if (!wordData || !wordData.sound_url) {
+        console.error("Ses dosyası bulunamadı:", word);
+        return;
       }
-    };
+      const audio = new Audio(wordData.sound_url);
+      audio.play();
+    }
 
     async function initGame() {
       allData = shuffleArray(await fetchData());
