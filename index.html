@@ -12,8 +12,8 @@
       padding: 0;
     }
     body {
-      font-family: Arial, sans-serif;
-      background-color: #cae7b2;
+      font-family: Arial, sans-serif;       
+      background-color: #b35407;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -21,13 +21,13 @@
       padding: 10px;
     }
     h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
+      font-size: 15px;              
+      margin-bottom: 1x;
       text-align: center;
     }
     .game-container {
       display: flex;
-      gap: 20px;
+      gap: 11px;
       justify-content: center;
       width: 100%;
     }
@@ -42,19 +42,19 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 2px solid #000;
-      background-color: #fff;
+      border: 2px solid #40ec15;
+      background-color: #7072da;
       text-align: center;
       padding: 10px;
       height: 50px;
       font-size: 16px;
       border-radius: 12px;
       cursor: pointer;
-      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 6px rgba(102, 4, 4, 0.2);
       transition: background-color 0.3s, transform 0.2s;
     }
     .grid-item:hover {
-      background-color: #f1f1f1;
+      background-color: #751111;
       transform: scale(1.05);
     }
     .grid-item.correct {
@@ -68,7 +68,7 @@
     }
     .grid-item.arabic {
       font-family: 'Amiri', serif;
-      color: #333;
+      color: gold;  /* Altın sarısı */
       direction: rtl;
       font-size: 24px;
     }
@@ -209,15 +209,16 @@
     }
 
     function nextPage() {
-      const totalPages = Math.ceil(allData.length / wordsPerPage);
-      if (currentPage < totalPages - 1) {
-        currentPage++;
-        correctPairs = 0;
-        renderPageData();
-      } else {
-        alert("🎉 Tebrikler! Tüm eşleştirmeleri tamamladınız.");
-      }
-    }
+  const totalPages = Math.ceil(allData.length / wordsPerPage);
+  if (currentPage < totalPages - 1) {
+    currentPage++;
+    correctPairs = 0; // Eşleşme sayısını sıfırla
+    renderPageData();
+  } else {
+    alert("🎉 Tebrikler! Tüm eşleştirmeleri tamamladınız.");
+  }
+}
+
 
     function playAudio(url) {
       const audio = new Audio(url);
