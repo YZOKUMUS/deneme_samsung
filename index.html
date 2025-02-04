@@ -6,13 +6,9 @@
   <title>Arapça - Türkçe Eşleştirme Oyunu</title>
   <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;       
+      font-family: Arial, sans-serif;
       background-color: #b35407;
       display: flex;
       flex-direction: column;
@@ -20,62 +16,22 @@
       min-height: 100vh;
       padding: 10px;
     }
-    h1 {
-      font-size: 15px;              
-      margin-bottom: 1x;
-      text-align: center;
-    }
-    .game-container {
-      display: flex;
-      gap: 11px;
-      justify-content: center;
-      width: 100%;
-    }
-    .column {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      width: 40%;
-      max-width: 180px;
-    }
+    h1 { font-size: 18px; margin-bottom: 10px; color: white; text-align: center; }
+    .game-container { display: flex; gap: 20px; justify-content: center; width: 100%; }
+    .column { display: flex; flex-direction: column; gap: 10px; width: 40%; max-width: 200px; }
     .grid-item {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 2px solid #40ec15;
-      background-color: #7072da;
-      text-align: center;
-      padding: 10px;
-      height: 50px;
-      font-size: 16px;
-      border-radius: 12px;
-      cursor: pointer;
+      display: flex; justify-content: center; align-items: center;
+      border: 2px solid #40ec15; background-color: #7072da;
+      text-align: center; padding: 10px; height: 50px;
+      font-size: 18px; border-radius: 12px; cursor: pointer;
       box-shadow: 0 1px 6px rgba(102, 4, 4, 0.2);
       transition: background-color 0.3s, transform 0.2s;
     }
-    .grid-item:hover {
-      background-color: #751111;
-      transform: scale(1.05);
-    }
-    .grid-item.correct {
-      background-color: #27ae60;
-      color: white;
-      cursor: not-allowed;
-    }
-    .grid-item.incorrect {
-      background-color: #e74c3c;
-      color: white;
-    }
-    .grid-item.arabic {
-      font-family: 'Amiri', serif;
-      color: gold;  /* Altın sarısı */
-      direction: rtl;
-      font-size: 24px;
-    }
-    .grid-item.turkish {
-      direction: ltr;
-      font-size: 16px;
-    }
+    .grid-item:hover { background-color: #751111; transform: scale(1.05); }
+    .grid-item.correct { background-color: #27ae60; color: white; cursor: not-allowed; }
+    .grid-item.incorrect { background-color: #e74c3c; color: white; }
+    .grid-item.arabic { font-family: 'Amiri', serif; color: gold; direction: rtl; font-size: 24px; }
+    .grid-item.turkish { direction: ltr; font-size: 16px; }
   </style>
 </head>
 <body>
@@ -121,6 +77,8 @@
       arabicColumn.innerHTML = '';
       turkishColumn.innerHTML = '';
 
+      correctPairs = 0; // ✅ Sayfa yüklendiğinde eşleşme sayısını sıfırla
+
       const shuffledArabic = shuffleArray([...pageData]);
       const shuffledTurkish = shuffleArray([...pageData]);
 
@@ -136,43 +94,40 @@
     function handleArabicClick(item) {
       if (selectedArabic) return;
       playAudio(item.sound_url);
-      selectedArabic = item.arabic_word;
-      markSelection(item.arabic_word, 'arabic', 'selected');
+      selectedArabic = item;
+      highlightSelection(item.arabic_word, 'arabic');
       checkMatch();
     }
 
     function handleTurkishClick(item) {
       if (selectedTurkish) return;
-      selectedTurkish = item.turkish_meaning;
-      markSelection(item.turkish_meaning, 'turkish', 'selected');
+      selectedTurkish = item;
+      highlightSelection(item.turkish_meaning, 'turkish');
       checkMatch();
     }
 
-    function markSelection(word, type, status) {
+    function highlightSelection(word, type) {
       document.querySelectorAll(`.grid-item.${type}`).forEach(item => {
-        if (item.textContent === word) item.classList.add(status);
+        if (item.textContent === word) item.classList.add('selected');
       });
     }
 
     function checkMatch() {
       if (selectedArabic && selectedTurkish) {
-        const isMatch = allData.some(
-          pair => pair.arabic_word === selectedArabic && pair.turkish_meaning === selectedTurkish
-        );
+        const isMatch = selectedArabic.arabic_word === selectedTurkish.arabic_word;
 
         if (isMatch) {
-          markAsCorrect(selectedArabic, selectedTurkish);
+          markAsCorrect(selectedArabic.arabic_word, selectedTurkish.turkish_meaning);
           correctPairs++;
         } else {
-          markAsIncorrect(selectedArabic, selectedTurkish);
+          markAsIncorrect(selectedArabic.arabic_word, selectedTurkish.turkish_meaning);
         }
 
-        selectedArabic = null;
-        selectedTurkish = null;
+        setTimeout(resetSelections, 1000);
 
-        // Tüm eşleşmeler tamamlandıysa otomatik olarak sonraki sayfaya geç
+        // ✅ **Tüm eşleşmeler tamamlandıysa sayfayı değiştir**
         if (correctPairs === wordsPerPage) {
-          setTimeout(nextPage, 1000);
+          setTimeout(nextPage, 1200);
         }
       }
     }
@@ -185,7 +140,6 @@
     function markAsIncorrect(arabic, turkish) {
       updateGridItem(arabic, 'arabic', 'incorrect');
       updateGridItem(turkish, 'turkish', 'incorrect');
-      setTimeout(resetSelections, 1000);
     }
 
     function updateGridItem(word, type, status) {
@@ -193,11 +147,7 @@
         if (item.textContent === word) {
           item.classList.remove('selected');
           item.classList.add(status);
-          if (status === 'correct') {
-            item.style.pointerEvents = 'none';
-          } else {
-            item.style.pointerEvents = 'auto';
-          }
+          item.style.pointerEvents = status === 'correct' ? 'none' : 'auto';
         }
       });
     }
@@ -206,19 +156,20 @@
       document.querySelectorAll('.grid-item').forEach(item => {
         item.classList.remove('selected', 'incorrect');
       });
+      selectedArabic = null;
+      selectedTurkish = null;
     }
 
     function nextPage() {
-  const totalPages = Math.ceil(allData.length / wordsPerPage);
-  if (currentPage < totalPages - 1) {
-    currentPage++;
-    correctPairs = 0; // Eşleşme sayısını sıfırla
-    renderPageData();
-  } else {
-    alert("🎉 Tebrikler! Tüm eşleştirmeleri tamamladınız.");
-  }
-}
-
+      const totalPages = Math.ceil(allData.length / wordsPerPage);
+      if (currentPage < totalPages - 1) {
+        currentPage++;
+        correctPairs = 0;
+        renderPageData();
+      } else {
+        alert("🎉 Tebrikler! Tüm eşleştirmeleri tamamladınız.");
+      }
+    }
 
     function playAudio(url) {
       const audio = new Audio(url);
