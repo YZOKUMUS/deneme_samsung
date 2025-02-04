@@ -79,13 +79,32 @@
       direction: ltr;
       font-size: 16px;
     }
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+    }
+    .pagination button {
+      background-color: #40ec15;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    .pagination button:hover {
+      background-color: #27ae60;
+    }
   </style>
 </head>
 <body>
   <h1>Arapça-Türkçe Kelime Eşleştirme Oyunu</h1>
   <div class="controls">
     <label for="sure-select">Sûre Seç:</label>
-    <select id="sure-select"></select>
+    <select id="sure-select">
+      <option value="">Bir sûre seçin</option>
+    </select>
   </div>
   <p>Doğru Eşleşmeler: <span id="correct-count">0</span></p>
   <div class="game-container">
@@ -93,23 +112,32 @@
     <div class="column" id="turkish-column"></div>
   </div>
 
+  <div class="pagination">
+    <button id="prev-page-btn" onclick="changePage(-1)">Önceki Sayfa</button>
+    <button id="next-page-btn" onclick="changePage(1)">Sonraki Sayfa</button>
+  </div>
+
   <script>
     const wordsPerPage = 8;
-    let selectedArabic = null;
-    let selectedTurkish = null;
-    let correctPairs = 0;
     let currentPage = 0;
     let allData = [];
+    let correctPairs = 0;
+    let selectedArabic = null;
+    let selectedTurkish = null;
+    let correctWords = []; // Doğru eşleşen kelimeleri tutacağız
 
+    // Veriyi JSON dosyasından çekmek
     async function fetchData() {
       const response = await fetch('data.json');
       return response.ok ? await response.json() : [];
     }
 
+    // Diziyi karıştırmak
     function shuffleArray(array) {
       return array.sort(() => Math.random() - 0.5);
     }
 
+    // Oyun kutusunu oluşturmak
     function createGridItem(word, type, onClick) {
       const item = document.createElement('div');
       item.className = `grid-item ${type}`;
@@ -118,107 +146,110 @@
       return item;
     }
 
+    // Sayfa verilerini render etme
     function renderPageData() {
       const sureAdi = document.getElementById('sure-select').value;
       const filteredData = allData.filter(item => item.sure_adi.trim() === sureAdi);
-      
+
+      // Eğer filtrelenmiş veri yoksa sayfayı temizle
       if (filteredData.length === 0) {
-        alert('Seçilen sûreye ait veri bulunamadı.');
+        document.getElementById('arabic-column').innerHTML = 'Bu sûreye ait kelimeler yok.';
+        document.getElementById('turkish-column').innerHTML = '';
         return;
       }
 
       const pageData = filteredData.slice(currentPage * wordsPerPage, (currentPage + 1) * wordsPerPage);
-      
+
       const arabicColumn = document.getElementById('arabic-column');
       const turkishColumn = document.getElementById('turkish-column');
-      
+
       arabicColumn.innerHTML = '';
       turkishColumn.innerHTML = '';
-      
+
       const shuffledArabic = shuffleArray([...pageData]);
       const shuffledTurkish = shuffleArray([...pageData]);
-      
+
       shuffledArabic.forEach(item => {
         arabicColumn.appendChild(createGridItem(item.arabic_word, 'arabic', () => handleArabicClick(item)));
       });
-      
+
       shuffledTurkish.forEach(item => {
         turkishColumn.appendChild(createGridItem(item.turkish_meaning, 'turkish', () => handleTurkishClick(item)));
       });
+
+      // Sayfa geçiş butonlarının aktifliği
+      document.getElementById('prev-page-btn').disabled = currentPage === 0;
+      document.getElementById('next-page-btn').disabled = (currentPage + 1) * wordsPerPage >= filteredData.length;
     }
 
+    // Arapça kelimeye tıklama
     function handleArabicClick(item) {
-      if (selectedArabic) return;
-      playAudio(item.sound_url); // Ses dosyasını çal
+      if (selectedArabic || correctWords.includes(item.arabic_word)) return; // Daha önce eşleşmişse işlem yapma
+      playAudio(item.sound_url);
       selectedArabic = item.arabic_word;
       checkMatch(item);
     }
 
+    // Türkçe kelimeye tıklama
     function handleTurkishClick(item) {
-      if (selectedTurkish) return;
+      if (selectedTurkish || correctWords.includes(item.turkish_meaning)) return; // Daha önce eşleşmişse işlem yapma
       selectedTurkish = item.turkish_meaning;
       checkMatch(item);
     }
 
-    function checkMatch() {
+    // Eşleşme kontrolü
+    function checkMatch(item) {
       if (!selectedArabic || !selectedTurkish) return;
-      
-      const matchedItem = allData.find(pair => pair.arabic_word === selectedArabic && pair.turkish_meaning === selectedTurkish);
 
-      if (matchedItem) {
+      const isMatch = allData.some(pair => pair.arabic_word === selectedArabic && pair.turkish_meaning === selectedTurkish);
+
+      if (isMatch) {
         correctPairs++;
         document.getElementById('correct-count').textContent = correctPairs;
-
-        // Eşleşen öğeleri devre dışı bırak
-        const arabicItems = document.querySelectorAll('.arabic');
-        const turkishItems = document.querySelectorAll('.turkish');
-        arabicItems.forEach(item => {
-          if (item.textContent === selectedArabic) {
-            item.classList.add('correct');
-            item.style.pointerEvents = 'none'; // Tıklanamaz hale getir
-          }
-        });
-        turkishItems.forEach(item => {
-          if (item.textContent === selectedTurkish) {
-            item.classList.add('correct');
-            item.style.pointerEvents = 'none'; // Tıklanamaz hale getir
-          }
-        });
-      } else {
-        // Yanlış eşleşme yapılırsa, seçilen öğeleri sıfırlayalım
-        setTimeout(() => {
-          selectedArabic = null;
-          selectedTurkish = null;
-        }, 500); // Yanlış eşleşme için bir süre bekletme
+        correctWords.push(selectedArabic, selectedTurkish); // Doğru eşleşen kelimeleri kaydet
+        disableMatchedItems(); // Eşleşenleri pasifleştir
       }
 
+      // Seçimleri sıfırla
       selectedArabic = null;
       selectedTurkish = null;
     }
 
+    // Ses oynatma
     function playAudio(url) {
-      if (!url) return;  // Eğer URL yoksa ses çalmasın
       const audio = new Audio(url);
-      audio.play().catch(error => console.error("Ses çalma hatası:", error)); // Hata durumunda konsola yazdır
+      audio.play();
     }
 
+    // Sayfa değiştir
+    function changePage(direction) {
+      const totalPages = Math.ceil(allData.length / wordsPerPage);
+      currentPage = Math.max(0, Math.min(currentPage + direction, totalPages - 1));
+      renderPageData();
+    }
+
+    // Eşleşen kelimeleri pasifleştir
+    function disableMatchedItems() {
+      const allGridItems = document.querySelectorAll('.grid-item');
+      allGridItems.forEach(item => {
+        if (correctWords.includes(item.textContent)) {
+          item.classList.add('correct');
+          item.style.cursor = 'not-allowed'; // Tıklanamaz hale getir
+        }
+      });
+    }
+
+    // Başlangıçta verileri yükle ve sûre seçeneklerini ekle
     async function initGame() {
       allData = await fetchData();
       const sureSelect = document.getElementById('sure-select');
       const sureler = [...new Set(allData.map(item => item.sure_adi))];
       sureler.forEach(sure => {
         const option = document.createElement('option');
-        option.value = sure.trim(); // Trimleme ekledim
-        option.textContent = sure.trim();
+        option.value = sure.trim();
+        option.textContent = sure;
         sureSelect.appendChild(option);
       });
-      
-      // İlk seçenek seçildiğinde sayfayı render et
-      if (sureler.length > 0) {
-        sureSelect.value = sureler[0]; // İlk sûreyi varsayılan olarak seç
-        renderPageData();
-      }
-
       sureSelect.onchange = renderPageData;
     }
 
