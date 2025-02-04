@@ -107,7 +107,6 @@
       <option value="">Bir sûre seçin</option>
     </select>
   </div>
-  <p>Doğru Eşleşmeler: <span id="correct-count">0</span></p>
   <div class="game-container">
     <div class="column" id="arabic-column"></div>
     <div class="column" id="turkish-column"></div>
@@ -122,7 +121,6 @@
     const wordsPerPage = 8;
     let currentPage = 0;
     let allData = [];
-    let correctPairs = 0;
     let selectedArabic = null;
     let selectedTurkish = null;
     let correctWords = []; // Doğru eşleşen kelimeleri tutacağız
@@ -205,8 +203,6 @@
       const isMatch = allData.some(pair => pair.arabic_word === selectedArabic && pair.turkish_meaning === selectedTurkish);
 
       if (isMatch) {
-        correctPairs++;
-        document.getElementById('correct-count').textContent = correctPairs;
         correctWords.push(selectedArabic, selectedTurkish); // Doğru eşleşen kelimeleri kaydet
         disableMatchedItems(); // Eşleşenleri pasifleştir
       }
