@@ -22,7 +22,7 @@
       padding: 10px;
     }
     h1 {
-      font-size: 24px;
+      font-size: 14px;
       margin-bottom: 10px;
       text-align: center;
       color: white;
@@ -47,8 +47,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 2px solid #40ec15;
-      background-color: #7072da;
+      border: 2px solid #69b4fa;
+      background-color: #282829;
       text-align: center;
       padding: 10px;
       height: 50px;
@@ -60,7 +60,7 @@
       user-select: none;
     }
     .grid-item:hover {
-      background-color: #751111;
+      background-color: #3f3e3e;
       transform: scale(1.05);
     }
     .grid-item.selected {
@@ -78,14 +78,14 @@
       animation: incorrectAnimation 0.5s;
     }
     .grid-item.arabic {
-      font-family: 'Amiri', serif;
+      font-family: ' amiri colored ', serif;
       color: gold;
       direction: rtl;
-      font-size: 24px;
+      font-size: 25px;
     }
     .grid-item.turkish {
       direction: ltr;
-      font-size: 16px;
+      font-size: 14px;
     }
     .pagination {
       margin-top: 20px;
@@ -135,7 +135,7 @@
   </div>
 
   <script>
-    const wordsPerPage = 8;
+    const wordsPerPage = 7;
     let currentPage = 0;
     let allData = [];
     let selectedArabic = null;
