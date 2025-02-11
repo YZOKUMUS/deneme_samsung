@@ -13,7 +13,8 @@
     }
     body {
       font-family: Arial, sans-serif;
-      background-color: #0e7bd4;
+      background-color: #1e1e1e; /* Siyah arka plan */
+      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -21,16 +22,17 @@
       padding: 10px;
     }
     h1 {
-      font-size: 18px;
+      font-size: 24px;
       margin-bottom: 10px;
       text-align: center;
+      color: white;
     }
     .controls {
       margin-bottom: 10px;
     }
     .game-container {
       display: flex;
-      gap: 11px;
+      gap: 20px;
       justify-content: center;
       width: 100%;
     }
@@ -55,20 +57,25 @@
       cursor: pointer;
       box-shadow: 0 1px 6px rgba(102, 4, 4, 0.2);
       transition: background-color 0.3s, transform 0.2s;
-      user-select: none;  /* Metin seçimini engeller */
+      user-select: none;
     }
     .grid-item:hover {
       background-color: #751111;
       transform: scale(1.05);
     }
+    .grid-item.selected {
+      border-color: #3498db; /* Mavi renk kontener çizgisi */
+    }
     .grid-item.correct {
-      background-color: #27ae60;
+      background-color: #27ae60; /* Yeşil renk */
       color: white;
       cursor: not-allowed;
+      animation: correctAnimation 0.5s;
     }
     .grid-item.incorrect {
-      background-color: #e74c3c;
+      background-color: #e74c3c; /* Kırmızı renk */
       color: white;
+      animation: incorrectAnimation 0.5s;
     }
     .grid-item.arabic {
       font-family: 'Amiri', serif;
@@ -96,6 +103,16 @@
     }
     .pagination button:hover {
       background-color: #27ae60;
+    }
+
+    @keyframes correctAnimation {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+
+    @keyframes incorrectAnimation {
+      0% { transform: scale(1); }
+      100% { transform: scale(0.9); }
     }
   </style>
 </head>
@@ -184,9 +201,10 @@
     // Arapça kelimeye tıklama
     function handleArabicClick(item) {
       if (selectedArabic || correctWords.includes(item.arabic_word)) return; // Daha önce eşleşmişse işlem yapma
-      playAudio(item.sound_url);
+      playAudio(item.sound_url);  // Ses çalma fonksiyonu tetiklendi
       selectedArabic = item.arabic_word;
       checkMatch(item);
+      item.classList.add('selected'); // Tıklanan kelimenin kontenerini mavi yap
     }
 
     // Türkçe kelimeye tıklama
