@@ -78,7 +78,7 @@
       animation: incorrectAnimation 0.5s;
     }
     .grid-item.arabic {
-      font-family: ' amiri colored ', serif;
+      font-family: 'Amiri', serif;
       color: gold;
       direction: rtl;
       font-size: 25px;
@@ -142,7 +142,7 @@
     let selectedTurkish = null;
     let correctWords = []; // Doğru eşleşen kelimeleri tutacağız
 
-    // Veriyi JSON dosyasından çekmek
+    // Veriyi data.json dosyasından çekmek
     async function fetchData() {
       const response = await fetch('data.json');
       return response.ok ? await response.json() : [];
@@ -186,11 +186,11 @@
       const shuffledTurkish = shuffleArray([...pageData]);
 
       shuffledArabic.forEach(item => {
-        arabicColumn.appendChild(createGridItem(item.arabic_word, 'arabic', () => handleArabicClick(item)));
+        arabicColumn.appendChild(createGridItem(item.kelime, 'arabic', () => handleArabicClick(item)));
       });
 
       shuffledTurkish.forEach(item => {
-        turkishColumn.appendChild(createGridItem(item.turkish_meaning, 'turkish', () => handleTurkishClick(item)));
+        turkishColumn.appendChild(createGridItem(item.anlam, 'turkish', () => handleTurkishClick(item)));
       });
 
       // Sayfa geçiş butonlarının aktifliği
@@ -200,17 +200,17 @@
 
     // Arapça kelimeye tıklama
     function handleArabicClick(item) {
-      if (selectedArabic || correctWords.includes(item.arabic_word)) return; // Daha önce eşleşmişse işlem yapma
-      playAudio(item.sound_url);  // Ses çalma fonksiyonu tetiklendi
-      selectedArabic = item.arabic_word;
+      if (selectedArabic || correctWords.includes(item.kelime)) return; // Daha önce eşleşmişse işlem yapma
+      playAudio(item.ses_dosyasi);  // Ses çalma fonksiyonu tetiklendi
+      selectedArabic = item.kelime;
       checkMatch(item);
       item.classList.add('selected'); // Tıklanan kelimenin kontenerini mavi yap
     }
 
     // Türkçe kelimeye tıklama
     function handleTurkishClick(item) {
-      if (selectedTurkish || correctWords.includes(item.turkish_meaning)) return; // Daha önce eşleşmişse işlem yapma
-      selectedTurkish = item.turkish_meaning;
+      if (selectedTurkish || correctWords.includes(item.anlam)) return; // Daha önce eşleşmişse işlem yapma
+      selectedTurkish = item.anlam;
       checkMatch(item);
     }
 
@@ -218,7 +218,7 @@
     function checkMatch(item) {
       if (!selectedArabic || !selectedTurkish) return;
 
-      const isMatch = allData.some(pair => pair.arabic_word === selectedArabic && pair.turkish_meaning === selectedTurkish);
+      const isMatch = allData.some(pair => pair.kelime === selectedArabic && pair.anlam === selectedTurkish);
 
       if (isMatch) {
         correctWords.push(selectedArabic, selectedTurkish); // Doğru eşleşen kelimeleri kaydet
@@ -232,13 +232,16 @@
 
     // Ses oynatma
     function playAudio(url) {
+      if (!url) return;
       const audio = new Audio(url);
       audio.play();
     }
 
     // Sayfa değiştir
     function changePage(direction) {
-      const totalPages = Math.ceil(allData.length / wordsPerPage);
+      const sureAdi = document.getElementById('sure-select').value;
+      const filteredData = allData.filter(item => item.sure_adi.trim() === sureAdi);
+      const totalPages = Math.ceil(filteredData.length / wordsPerPage);
       currentPage = Math.max(0, Math.min(currentPage + direction, totalPages - 1));
       renderPageData();
     }
