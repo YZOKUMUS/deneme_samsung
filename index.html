@@ -7,19 +7,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
   <style>
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      box-sizing: border-box;   /* Kutu modelini border-box olarak ayarlar */
+      margin: 0;                /* Sayfa kenar boşluklarını sıfırlar */
+      padding: 0;               /* Sayfa içeriğinin kenar boşluklarını sıfırlar */
     }
-    body {
-      font-family: Arial, sans-serif;
+    body {          /* Sayfa genelindeki stil ayarları */                 
+      font-family: Arial, sans-serif; /* Yazı tipi */           
       background-color: #1e1e1e; /* Siyah arka plan */
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 10px;
+      color: white; /* Beyaz yazı rengi */                
+      display: flex;    /* Sayfa içeriğini yatayda hizalar */              
+      flex-direction: column; /* İçerikleri yukarıdan aşağıya sıralar */
+      align-items: center;    /* İçeriği ortalar */
+      min-height: 100vh;        /* Sayfa yüksekliğini ekran yüksekliği kadar yapar */
+      padding: 10px;          /* İçeriğin kenar boşlukları */
     }
     h1 {
       font-size: 14px;
@@ -28,13 +28,13 @@
       color: white;
     }
     .controls {
-      margin-bottom: 10px;
+      margin-bottom: 10px;      /* Kontrol kutusunun alt boşluğu */
     }
-    .game-container {
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      width: 100%;
+    .game-container {           /* Oyun kutusu */
+      display: flex;            /* İçeriği yatayda hizalar */
+      gap: 20px;                /* İçerikler arasındaki boşluk */
+      justify-content: center;    /* İçeriği ortalar */
+      width: 100%;                /* Genişlik 100% */
     }
     .column {
       display: flex;
@@ -47,7 +47,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 2px solid #69b4fa;
+      border: 2px solid #81b9ee;
       background-color: #282829;
       text-align: center;
       padding: 10px;
@@ -64,7 +64,7 @@
       transform: scale(1.05);
     }
     .grid-item.selected {
-      border-color: #3498db; /* Mavi renk kontener çizgisi */
+      border-color: #3bacf7; /* Mavi renk kontener çizgisi */
     }
     .grid-item.correct {
       background-color: #27ae60; /* Yeşil renk */
@@ -81,38 +81,38 @@
       font-family: 'Amiri', serif;
       color: gold;
       direction: rtl;
-      font-size: 25px;
+      font-size: 26px;
     }
     .grid-item.turkish {
       direction: ltr;
       font-size: 14px;
     }
     .pagination {
-      margin-top: 20px;
-      display: flex;
-      gap: 15px;
+      margin-top: 20px;       /* Sayfa numaralandırma kutusunun üst boşluğu */
+      display: flex;          /* İçeriği yatayda hizalar */
+      gap: 15px;              /* İçerikler arasındaki boşluk */
     }
-    .pagination button {
-      background-color: #40ec15;
-      border: none;
-      padding: 8px 15px;
+    .pagination button {        /* Sayfa numaralandırma butonları */
+      background-color: #40ec15;      /* Buton arka plan rengi */
+      border: none;                     
+      padding: 8px 15px;                /* Buton içeriğinin kenar boşlukları */
       border-radius: 5px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 16px;                /* Buton yazı tipi boyutu */
       transition: background-color 0.3s;
     }
     .pagination button:hover {
       background-color: #27ae60;
     }
 
-    @keyframes correctAnimation {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.1); }
+    @keyframes correctAnimation {               /* Doğru seçimde yeşil renkli animasyon */
+      0% { transform: scale(1); }               /* 0% ve 100% arasında büyüme ve küçülme işlemi yapar */
+      100% { transform: scale(1.1); }           /* 0% başlangıç, 100% bitiş durumunu belirtir */
     }
 
-    @keyframes incorrectAnimation {
-      0% { transform: scale(1); }
-      100% { transform: scale(0.9); }
+    @keyframes incorrectAnimation {           /* Yanlış seçimde kırmızı renkli animasyon */
+      0% { transform: scale(1); }             /* 0% ve 100% arasında büyüme ve küçülme işlemi yapar */
+      100% { transform: scale(0.9); }         /* 0% başlangıç, 100% bitiş durumunu belirtir */
     }
   </style>
 </head>
@@ -148,18 +148,18 @@
       return response.ok ? await response.json() : [];
     }
 
-    // Diziyi karıştırmak
-    function shuffleArray(array) {
-      return array.sort(() => Math.random() - 0.5);
+    // Diziyi karıştırmak               /* Fisher-Yates shuffle algoritması */
+    function shuffleArray(array) {      /* Diziyi karıştırarak her seferinde farklı sıralama yapar */
+      return array.sort(() => Math.random() - 0.5);     /* Math.random() 0 ile 1 arasında rastgele sayı üretir */
     }
 
-    // Oyun kutusunu oluşturmak
-    function createGridItem(word, type, onClick) {
-      const item = document.createElement('div');
-      item.className = `grid-item ${type}`;
-      item.textContent = word;
-      item.onclick = onClick;
-      return item;
+    // Oyun kutusunu oluşturmak         /* Kelimeleri ekrana yazdırırken kullanılacak olan fonksiyon */
+    function createGridItem(word, type, onClick) {      /* Kelime, tür ve tıklama olayını alır */
+      const item = document.createElement('div');       /* Yeni bir div oluşturur */
+      item.className = `grid-item ${type}`;             /* Oluşturulan div'e class ekler */
+      item.textContent = word;                          /* Oluşturulan div'e kelimeyi ekler */
+      item.onclick = onClick;                           /* Oluşturulan div'e tıklama olayını ekler */
+      return item;                                      /* Oluşturulan div'i döndürür */
     }
 
     // Sayfa verilerini render etme
