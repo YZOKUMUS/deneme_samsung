@@ -169,10 +169,10 @@
 
       // Eğer filtrelenmiş veri yoksa sayfayı temizle
       if (filteredData.length === 0) {
-        document.getElementById('arabic-column').innerHTML = 'Bu sûreye ait kelimeler yok.';
-        document.getElementById('turkish-column').innerHTML = '';
-        return;
-      }
+  document.getElementById('arabic-column').innerHTML = '<div class="grid-item">Bu sûreye ait kelimeler yok.</div>';
+  document.getElementById('turkish-column').innerHTML = '';
+  return;
+}
 
       const pageData = filteredData.slice(currentPage * wordsPerPage, (currentPage + 1) * wordsPerPage);
 
@@ -200,12 +200,14 @@
 
     // Arapça kelimeye tıklama
     function handleArabicClick(item) {
-      if (selectedArabic || correctWords.includes(item.kelime)) return; // Daha önce eşleşmişse işlem yapma
-      playAudio(item.ses_dosyasi);  // Ses çalma fonksiyonu tetiklendi
-      selectedArabic = item.kelime;
-      checkMatch(item);
-      item.classList.add('selected'); // Tıklanan kelimenin kontenerini mavi yap
-    }
+  if (selectedArabic || correctWords.includes(item.kelime)) return;
+  playAudio(item.ses_dosyasi);  
+  selectedArabic = item.kelime;
+  disableSelectionStyles();
+  document.querySelector(`.grid-item.arabic:contains('${item.kelime}')`).classList.add('selected');
+  checkMatch(item);
+}
+
 
     // Türkçe kelimeye tıklama
     function handleTurkishClick(item) {
@@ -215,27 +217,36 @@
     }
 
     // Eşleşme kontrolü
-    function checkMatch(item) {
-      if (!selectedArabic || !selectedTurkish) return;
+    function checkMatch() {
+  if (!selectedArabic || !selectedTurkish) return;
 
-      const isMatch = allData.some(pair => pair.kelime === selectedArabic && pair.anlam === selectedTurkish);
+  const isMatch = allData.some(pair => pair.kelime === selectedArabic && pair.anlam === selectedTurkish);
 
-      if (isMatch) {
-        correctWords.push(selectedArabic, selectedTurkish); // Doğru eşleşen kelimeleri kaydet
-        disableMatchedItems(); // Eşleşenleri pasifleştir
-      }
+  if (isMatch) {
+    correctWords.push(selectedArabic, selectedTurkish);
+    disableMatchedItems();
+  } else {
+    setTimeout(() => {
+      disableSelectionStyles();
+    }, 1000); // Yanlış seçim durumunda seçimi kaldırmak için kısa bir bekleme
+  }
 
-      // Seçimleri sıfırla
-      selectedArabic = null;
-      selectedTurkish = null;
-    }
+  selectedArabic = null;
+  selectedTurkish = null;
+}
+
+function disableSelectionStyles() {
+  document.querySelectorAll('.grid-item.selected').forEach(item => {
+    item.classList.remove('selected');
+  });
+}
 
     // Ses oynatma
     function playAudio(url) {
-      if (!url) return;
-      const audio = new Audio(url);
-      audio.play();
-    }
+  if (!url || typeof url !== 'string') return;
+  const audio = new Audio(url);
+  audio.play().catch(() => console.error("Ses çalınırken bir hata oluştu."));
+}
 
     // Sayfa değiştir
     function changePage(direction) {
