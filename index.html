@@ -144,9 +144,15 @@
 
     // Veriyi data.json dosyasından çekmek
     async function fetchData() {
-      const response = await fetch('data.json');
-      return response.ok ? await response.json() : [];
-    }
+  try {
+    const response = await fetch('data.json');
+    if (!response.ok) throw new Error("Veri alınamadı.");
+    return await response.json();
+  } catch (error) {
+    console.error("Hata:", error);
+    return [];
+  }
+}
 
     // Diziyi karıştırmak               /* Fisher-Yates shuffle algoritması */
     function shuffleArray(array) {      /* Diziyi karıştırarak her seferinde farklı sıralama yapar */
@@ -203,9 +209,11 @@
   if (selectedArabic || correctWords.includes(item.kelime)) return;
   playAudio(item.ses_dosyasi);  
   selectedArabic = item.kelime;
+  setTimeout(() => {
   disableSelectionStyles();
+}, 500); // 0.5 saniye bekletme eklendi
   document.querySelector(`.grid-item.arabic:contains('${item.kelime}')`).classList.add('selected');
-  checkMatch(item);
+  checkMatch();
 }
 
 
@@ -213,7 +221,7 @@
     function handleTurkishClick(item) {
       if (selectedTurkish || correctWords.includes(item.anlam)) return; // Daha önce eşleşmişse işlem yapma
       selectedTurkish = item.anlam;
-      checkMatch(item);
+      checkMatch();
     }
 
     // Eşleşme kontrolü
@@ -236,9 +244,12 @@
 }
 
 function disableSelectionStyles() {
-  document.querySelectorAll('.grid-item.selected').forEach(item => {
-    item.classList.remove('selected');
-  });
+  document.querySelectorAll('.grid-item.arabic').forEach(item => {
+  if (item.textContent === selectedArabic) {
+    item.classList.add('selected');
+  }
+});
+
 }
 
     // Ses oynatma
@@ -257,11 +268,19 @@ function disableSelectionStyles() {
       renderPageData();
     }
 
+
+
+
+
+
+
+
+    
     // Eşleşen kelimeleri pasifleştir
     function disableMatchedItems() {
       const allGridItems = document.querySelectorAll('.grid-item');
       allGridItems.forEach(item => {
-        if (correctWords.includes(item.textContent)) {
+        if (correctWords.includes(item.textContent.trim())) {
           item.classList.add('correct');
           item.style.cursor = 'not-allowed'; // Tıklanamaz hale getir
         }
